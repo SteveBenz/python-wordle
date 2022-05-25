@@ -1,6 +1,7 @@
 # Read the answers and allowed file.
 from asyncio.windows_events import NULL
 from asyncore import read
+from distutils.log import error
 import random
 import sys
 import wordle_module
@@ -23,19 +24,26 @@ while l:
     l = f.readline()
 f.close()
 
-index = random.randrange(len(answers))
-target = answers[index]
-print(f'Selected word is {target}')
+target = answers[random.randrange(len(answers))]
 
-print("Gimme a guess")
+possibleAnswers = answers
+print(f"Starting with {len(possibleAnswers)} possible answers.")
+print("1> ", end="", flush=True)
 guess = sys.stdin.readline().strip()
 guesses = 1
 while guess != target:
-    if guess in allowed or guess in answers:
-        print(wordle_module.checkAnswer(guess,target))
+    if guess == "?":
+        print(f'Selected word is {target}')
+    elif guess in allowed or guess in answers:
+        hint = wordle_module.checkAnswer(guess,target)
         guesses += 1
+        possibleAnswers = list(filter(lambda suspect: not wordle_module.isEliminated(suspect, guess, hint), possibleAnswers))
+        if target not in possibleAnswers:
+            error(f"Whoopsadoodle - actual target of {target} was eliminated")
+        print(f"   {hint}    {len(possibleAnswers)} possibilities remain")
     else:
         print("Sorry, that's not a valid word")
+    print(f'{guesses}> ', end="", flush=True)
     guess = sys.stdin.readline().strip()
 
 print(f"Won in {guesses} tries")

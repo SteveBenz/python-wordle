@@ -44,13 +44,21 @@ guess = sys.stdin.readline().strip()
 guesses = 1
 while guess != target:
     if guess == "?":
+        print("Magic words:")
+        print(" show - shows the word you're after")
+        print(" list - shows the list of words that could match")
+        print("")
+    elif guess == 'show':
         print(f'Selected word is {target}')
+    elif guess == 'list':
+        print(" ".join(possibleAnswers))
     elif guess in allowed or guess in answers:
         hint = wordle_module.checkAnswer(guess,target)
         guesses += 1
         possibleAnswers = list(filter(lambda suspect: not wordle_module.isEliminated(suspect, guess, hint), possibleAnswers))
         if target not in possibleAnswers:
-            error(f"Whoopsadoodle - actual target of {target} was eliminated")
+            error(f"Whoopsadoodle - actual target of {target} was eliminated") # Must be a bug in isEliminated
+            exit(2)
         print(f"   {hint}    {len(possibleAnswers)} possibilities remain")
     else:
         print("Sorry, that's not a valid word")

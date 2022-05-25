@@ -5,6 +5,12 @@ from distutils.log import error
 import random
 import sys
 import wordle_module
+import argparse
+
+argumentParser = argparse.ArgumentParser(description="Wordle back seat quarterback")
+argumentParser.add_argument("-w", "--word", help="If supplied, plays the wordle game with the target being the word given.")
+arguments = argumentParser.parse_args()
+target = arguments.word
 
 f = open("answers.txt", "r")
 answers = []
@@ -24,7 +30,12 @@ while l:
     l = f.readline()
 f.close()
 
-target = answers[random.randrange(len(answers))]
+if target:
+    if target not in answers:
+        error(f"Target word given, {target}, is not in the list of known words")
+        exit(1)
+else:
+    target = answers[random.randrange(len(answers))]
 
 possibleAnswers = answers
 print(f"Starting with {len(possibleAnswers)} possible answers.")

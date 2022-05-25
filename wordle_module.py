@@ -49,6 +49,23 @@ def isEliminated(possibleAnswer: str, guess: str, clues: str):
                 return True
     return False
 
+def suggest(possibleAnswers: list, allowed: list, top: int):
+    bestChoice = ""
+    bestChoiceCount = 0
+    for choice in allowed:
+        totalRemainingChoices = 0
+        for possibleTarget in possibleAnswers:
+            clue = checkAnswer(choice, possibleTarget)
+            remainingChoiceCount = 0
+            for nextChoice in possibleAnswers:
+                if nextChoice != choice and not isEliminated(nextChoice, choice, clue):
+                    remainingChoiceCount += 1
+            totalRemainingChoices += remainingChoiceCount
+        if bestChoiceCount == 0 or bestChoiceCount > totalRemainingChoices:
+            bestChoiceCount = totalRemainingChoices
+            bestChoice = choice
+    print(f"The best choice is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
+
 class comparerTest(unittest.TestCase):
     def runTest(self):
         self.assertEqual(False, isEliminated("xxxxx", "wwwww", "     "));

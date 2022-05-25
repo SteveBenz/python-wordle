@@ -47,11 +47,14 @@ while guess != target:
         print("Magic words:")
         print(" show - shows the word you're after")
         print(" list - shows the list of words that could match")
+        print(" suggest - shows the best word to use")
         print("")
     elif guess == 'show':
         print(f'Selected word is {target}')
     elif guess == 'list':
         print(" ".join(possibleAnswers))
+    elif guess == 'suggest':
+        wordle_module.suggest(possibleAnswers, allowed, 5)
     elif guess in allowed or guess in answers:
         hint = wordle_module.checkAnswer(guess,target)
         guesses += 1

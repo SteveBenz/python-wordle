@@ -6,25 +6,26 @@ import wordle_module
 import argparse
 import re
 
+f = open("answers.txt", "r")
+answers = []
+l = f.readline()
+while l:
+    if l != "\n":
+        answers.append(l.rstrip())
+    l = f.readline()
+f.close()
+
+f = open("allowed.txt", "r")
+allowed = []
+l = f.readline()
+while l:
+    if l != "\n":
+        allowed.append(l.rstrip())
+    l = f.readline()
+f.close()
+
+
 def play(target: str or None):
-    f = open("answers.txt", "r")
-    answers = []
-    l = f.readline()
-    while l:
-        if l != "\n":
-            answers.append(l.rstrip())
-        l = f.readline()
-    f.close()
-
-    f = open("allowed.txt", "r")
-    allowed = []
-    l = f.readline()
-    while l:
-        if l != "\n":
-            allowed.append(l.rstrip())
-        l = f.readline()
-    f.close()
-
     if target:
         if target not in answers:
             error(f"Target word given, {target}, is not in the list of known words")
@@ -66,15 +67,6 @@ def play(target: str or None):
     print(f"Won in {guesses} tries")
 
 def assist():
-    f = open("answers.txt", "r")
-    answers = []
-    l = f.readline()
-    while l:
-        if l != "\n":
-            answers.append(l.rstrip())
-        l = f.readline()
-    f.close()
-
     possibleAnswers = answers
     print(f"Starting with {len(possibleAnswers)} possible answers.")
     print("Magic words:")
@@ -82,7 +74,7 @@ def assist():
     print("")
     while True:
         guess: str = "*"
-        while guess != "list" and not re.match("^[a-z]{5}$", guess):
+        while guess != "list" and guess != "suggest" and not re.match("^[a-z]{5}$", guess):
             if guess != "*":
                 print("Guess must be 5 letters long")
             print("Guess> ", end="", flush=True)
@@ -90,6 +82,8 @@ def assist():
 
         if guess == 'list':
             print(" ".join(possibleAnswers))
+        elif guess == 'suggest':
+            wordle_module.suggest(possibleAnswers, allowed, 5)
         else:
             hint = "*"
             while not re.match("^[ =^]{0,5}$", hint):

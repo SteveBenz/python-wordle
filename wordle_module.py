@@ -1,5 +1,6 @@
 from math import fabs
 from operator import truediv
+import random
 import unittest
 
 def checkAnswer(guess: str,answer: str):
@@ -45,6 +46,7 @@ def isEliminated(possibleAnswer: str, guess: str, clues: str):
                 if guess[i] == possibleAnswer[j] and not isUsed[j]:
                     isUsed[j] = True
                     foundOne = True
+                    break
             if not foundOne:
                 return True
     return False
@@ -66,8 +68,21 @@ def suggest(possibleAnswers: list, allowed: list, top: int):
             bestChoice = choice
     print(f"The best choice is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
 
+def randomPlay(target: str or None, answers: list):
+    possibleAnswers = answers
+    guess = answers[random.randrange(len(answers))]
+    guesses = 1
+    while guess != target:
+        hint = checkAnswer(guess,target)
+        guesses += 1
+        oldPossibleAnswers = possibleAnswers
+        possibleAnswers = list(filter(lambda suspect: not isEliminated(suspect, guess, hint), possibleAnswers))
+        guess = possibleAnswers[random.randrange(len(possibleAnswers))]
+    return guesses
+
 class comparerTest(unittest.TestCase):
     def runTest(self):
+        self.assertEqual(False, isEliminated("awake", "fauna", " ^  ^"));
         self.assertEqual(False, isEliminated("xxxxx", "wwwww", "     "));
         self.assertEqual(False, isEliminated("wxxxx", "wwwww", "=    "));
         self.assertEqual(False, isEliminated("wxxxx", "xxxxw", "^===^"));

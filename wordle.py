@@ -1,6 +1,7 @@
 # Read the answers and allowed file.
 from distutils.log import error
 import random
+import statistics
 import sys
 import wordle_module
 import argparse
@@ -95,13 +96,34 @@ def assist():
             possibleAnswers = list(filter(lambda suspect: not wordle_module.isEliminated(suspect, guess, hint), possibleAnswers))
             print(f"{len(possibleAnswers)} possible answers remain.")
 
+def par(gamesPerWord: int):
+    for target in answers:
+        scores = [0,0,0,0,0,0,0,0]
+        for i in range(gamesPerWord):
+            s = wordle_module.randomPlay(target, answers)
+            s = len(scores)-1 if s >= len(scores) else s
+            scores[s] += 1
+        sum = 0
+        highestSoFar = -1
+        modeScore = -1
+        for i in range(len(scores)):
+            if scores[i] > highestSoFar:
+                highestSoFar = scores[i]
+                modeScore = i
+
+        print(f"{target}, {modeScore+1}, {scores}")
+
 argumentParser = argparse.ArgumentParser(description="Wordle back seat quarterback")
 argumentParser.add_argument("-w", "--word", help="If supplied, plays the wordle game with the target being the word given.")
 argumentParser.add_argument("-a", "--assist", action='store_true',
     help="If supplied, tells it to go into a mode where you supply your guesses and the game's response so that you can get it to list the words")
+argumentParser.add_argument("-p", "--par", action='store_true',
+    help="If supplied, tells it to go into a mode where it calculates difficulty scores")
 arguments = argumentParser.parse_args()
-if (arguments.assist):
+if arguments.assist:
     assist()
+elif arguments.par:
+    par(100)
 else:
     play(arguments.word)
 

@@ -1,11 +1,9 @@
-from math import fabs
-from operator import truediv
 import random
 import unittest
 
 def checkAnswer(guess: str,answer: str):
-    score = []
-    used = []
+    score: list[str] = []
+    used: list[str] = []
     for i in range(len(answer)):
         if guess[i] == answer[i]:
             score.append("=")
@@ -51,7 +49,7 @@ def isEliminated(possibleAnswer: str, guess: str, clues: str):
                 return True
     return False
 
-def suggest(possibleAnswers: list, allowed: list, top: int):
+def suggest(possibleAnswers: list[str], allowed: list[str], top: int):
     bestChoice = ""
     bestChoiceCount = 0
     for choice in allowed:
@@ -68,14 +66,13 @@ def suggest(possibleAnswers: list, allowed: list, top: int):
             bestChoice = choice
     print(f"The best choice is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
 
-def randomPlay(target: str or None, answers: list):
+def randomPlay(target: str or None, answers: list[str]):
     possibleAnswers = answers
     guess = answers[random.randrange(len(answers))]
     guesses = 1
     while guess != target:
         hint = checkAnswer(guess,target)
         guesses += 1
-        oldPossibleAnswers = possibleAnswers
         possibleAnswers = list(filter(lambda suspect: not isEliminated(suspect, guess, hint), possibleAnswers))
         guess = possibleAnswers[random.randrange(len(possibleAnswers))]
     return guesses

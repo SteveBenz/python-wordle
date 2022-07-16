@@ -1,14 +1,13 @@
 # Read the answers and allowed file.
 from distutils.log import error
 import random
-import statistics
 import sys
 import wordle_module
 import argparse
 import re
 
 f = open("answers.txt", "r")
-answers = []
+answers: list[str] = []
 l = f.readline()
 while l:
     if l != "\n":
@@ -17,7 +16,7 @@ while l:
 f.close()
 
 f = open("allowed.txt", "r")
-allowed = []
+allowed: list[str] = []
 l = f.readline()
 while l:
     if l != "\n":
@@ -103,7 +102,6 @@ def par(gamesPerWord: int):
             s = wordle_module.randomPlay(target, answers)
             s = len(scores)-1 if s >= len(scores) else s
             scores[s] += 1
-        sum = 0
         highestSoFar = -1
         modeScore = -1
         for i in range(len(scores)):

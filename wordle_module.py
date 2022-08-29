@@ -1,4 +1,5 @@
 import random
+from typing import Tuple
 import unittest
 
 def checkAnswer(guess: str,answer: str):
@@ -49,22 +50,36 @@ def isEliminated(possibleAnswer: str, guess: str, clues: str):
                 return True
     return False
 
-def suggest(possibleAnswers: list[str], allowed: list[str], top: int):
+def suggest(possibleAnswers: list[str], allAnswers: list[str], allAllowedWords: list[str]):
     bestChoice = ""
     bestChoiceCount = 0
-    for choice in allowed:
-        totalRemainingChoices = 0
-        for possibleTarget in possibleAnswers:
-            clue = checkAnswer(choice, possibleTarget)
-            remainingChoiceCount = 0
-            for nextChoice in possibleAnswers:
-                if nextChoice != choice and not isEliminated(nextChoice, choice, clue):
-                    remainingChoiceCount += 1
-            totalRemainingChoices += remainingChoiceCount
+    bestChoice, bestChoiceCount = getBestChoice(possibleAnswers, possibleAnswers)
+    print(f"The best choice within the possible answers is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
+    bestChoice, bestChoiceCount = getBestChoice(possibleAnswers, allAnswers)
+    print(f"The best choice within the allowed answers is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
+    bestChoice, bestChoiceCount = getBestChoice(possibleAnswers, allAllowedWords)
+    print(f"The best choice within the full list of allowed words is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
+
+def getBestChoice(possibleAnswers: list[str], allAllowedWords: list[str]) -> Tuple[str,int]:
+    bestChoiceCount = 0
+    bestChoice = ""
+    for choice in allAllowedWords:
+        totalRemainingChoices = getRemainingChoiceCount(possibleAnswers, choice)
         if bestChoiceCount == 0 or bestChoiceCount > totalRemainingChoices:
             bestChoiceCount = totalRemainingChoices
             bestChoice = choice
-    print(f"The best choice is {bestChoice} with {bestChoiceCount/len(possibleAnswers)}")
+    return bestChoice,bestChoiceCount
+
+# Given the a list of possible answers, rate a given choice based on the number of
+# remaining choices given each possible correct answer.
+def getRemainingChoiceCount(possibleAnswers: list[str], choice: str):
+    totalRemainingChoices = 0
+    for possibleTarget in possibleAnswers:
+        clue = checkAnswer(choice, possibleTarget)
+        for nextChoice in possibleAnswers:
+            if nextChoice != choice and not isEliminated(nextChoice, choice, clue):
+                totalRemainingChoices += 1
+    return totalRemainingChoices
 
 def randomPlay(target: str or None, answers: list[str]):
     possibleAnswers = answers

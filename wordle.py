@@ -50,7 +50,7 @@ def play(target: str or None):
         elif guess == 'list':
             print(" ".join(possibleAnswers))
         elif guess == 'suggest':
-            wordle_module.suggest(possibleAnswers, allowed, 5)
+            wordle_module.suggest(possibleAnswers, answers, allowed)
         elif guess in allowed or guess in answers:
             hint = wordle_module.checkAnswer(guess,target)
             guesses += 1
@@ -71,19 +71,26 @@ def assist():
     print(f"Starting with {len(possibleAnswers)} possible answers.")
     print("Magic words:")
     print(" list - shows the list of words that could match")
+    print(" suggest - tells you a word that will give you good odds at a low number of possible answers")
+    print(" check <word> - tells you if a word is in the possible answers list")
     print("")
     while True:
         guess: str = "*"
-        while guess != "list" and guess != "suggest" and not re.match("^[a-z]{5}$", guess):
+        while guess != "list" and guess != "suggest" and not re.match("^[a-z]{5}$", guess) and not re.match("check .*", guess):
             if guess != "*":
                 print("Guess must be 5 letters long")
             print("Guess> ", end="", flush=True)
             guess = sys.stdin.readline().strip()
 
+        checkMatch = re.match("check (.*)", guess)
         if guess == 'list':
             print(" ".join(possibleAnswers))
         elif guess == 'suggest':
-            wordle_module.suggest(possibleAnswers, allowed, 5)
+            wordle_module.suggest(possibleAnswers, answers, allowed)
+        elif checkMatch:
+            wordToCheck = checkMatch.group(1)
+            blurb = "is" if checkMatch.group(1) in answers else "is not"
+            print(f"{wordToCheck} {blurb} an answer in wordle's answer set")
         else:
             hint = "*"
             while not re.match("^[ =^]{0,5}$", hint):

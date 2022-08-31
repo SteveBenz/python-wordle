@@ -1,10 +1,16 @@
-# Read the answers and allowed file.
 from distutils.log import error
 import random
 import sys
 import wordle_module
 import argparse
 import re
+
+# TODO:
+#   Looks like there's something wrong with the suggester - it sometimes gets worse as it goes on through the sets.
+#   Add an assist mode to rate the goodness of a guess
+#   Handle ctrl+C in the guesser.
+#   Make a nice way to exit
+#   Add an assist mode to rate the difficulty of words (hard)
 
 f = open("answers.txt", "r")
 answers: list[str] = []

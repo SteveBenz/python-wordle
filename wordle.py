@@ -7,7 +7,6 @@ import re
 
 # TODO:
 #   Looks like there's something wrong with the suggester - it sometimes gets worse as it goes on through the sets.
-#   Add an assist mode to rate the goodness of a guess
 #   Handle ctrl+C in the guesser.
 #   Add an assist mode to rate the difficulty of words (hard)
 
@@ -105,6 +104,17 @@ def assist():
                 print(" ".join(possibleAnswersAtTime[guessToShow-1]))
             else:
                 print("Error: Invalid use of the 'list' command - a valid example would 'list' which shows all the valid words right now or 'list 2' which shows all the valid answers prior to the second guess")
+            continue
+
+        if re.match("^rate ", guess):
+            rateMatch = re.match(f"^rate( ([1-{str(guessNumber)}]))? ([a-z]{{5}})$", guess)
+            if rateMatch:
+                guessToShow = int(rateMatch.group(2)) if rateMatch.group(2) else guessNumber
+                wordToRate = rateMatch.group(3)
+                rating = wordle_module.rateWord(wordToRate, possibleAnswersAtTime[guessToShow-1])
+                print(f"Rating: {rating}")
+            else:
+                print("Error: Invalid use of the 'rate' command - a valid example would 'rate stain' which shows how good a guess 'stain' is based on the current clues or 'rate 1 stain' which shows how could 'stain' would have been at guess 1")
             continue
 
         if re.match("^suggest ?.*$", guess):

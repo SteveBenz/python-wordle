@@ -70,6 +70,10 @@ def getBestChoice(possibleAnswers: list[str], allAllowedWords: list[str]) -> Tup
             bestChoice = choice
     return bestChoice,bestChoiceCount
 
+def rateWord(word: str, possibleAnswers: list[str]) -> float:
+    t = getBestChoice(possibleAnswers, [word])
+    return t[1]/len(possibleAnswers)
+
 # Given the a list of possible answers, rate a given choice based on the number of
 # remaining choices given each possible correct answer.
 def getRemainingChoiceCount(possibleAnswers: list[str], choice: str):

@@ -9,7 +9,6 @@ import re
 #   Looks like there's something wrong with the suggester - it sometimes gets worse as it goes on through the sets.
 #   Add an assist mode to rate the goodness of a guess
 #   Handle ctrl+C in the guesser.
-#   Make a nice way to exit
 #   Add an assist mode to rate the difficulty of words (hard)
 
 f = open("answers.txt", "r")
@@ -72,41 +71,89 @@ def play(target: str or None):
 
     print(f"Won in {guesses} tries")
 
+def assistHelp():
+    print("Magic words:")
+    print(" list [n] - Shows the list of words that could match - if an argument is supplied, then ")
+    print("    it shows the possible answer list as it was before you entered that guess number.")
+    print(" suggest [n] - Tells you a word that will give you good odds at a low number of possible answers")
+    print("    if an argument is supplied, then it shows the possible answer list as it was before you")
+    print("    entered that guess number.")
+    print(" check <word> - Tells you if a word is in the possible answers or allowed list.")
+    print(" rate [n] <word> - Tells you how good a guess is - if a guess number is supplied, it shows")
+    print("    the quality of the guess based on what was known at that time.")
+    print(" <word> - Enters the word as what you guess")
+    print(" <word>! - Enters the word as what you guess even if it is not in the wordle allowed list.")
+    print(" exit - Stops the program.")
+    print(" help - Shows this message.")
+    print("")
+
 def assist():
     possibleAnswers = answers
     print(f"Starting with {len(possibleAnswers)} possible answers.")
-    print("Magic words:")
-    print(" list - shows the list of words that could match")
-    print(" suggest - tells you a word that will give you good odds at a low number of possible answers")
-    print(" check <word> - tells you if a word is in the possible answers list")
-    print("")
+    assistHelp()
+    possibleAnswersAtTime: list[list[str]] = [possibleAnswers]
+    guessNumber = 1
     while True:
         guess: str = "*"
-        while guess != "list" and guess != "suggest" and not re.match("^[a-z]{5}$", guess) and not re.match("check .*", guess):
-            if guess != "*":
-                print("Guess must be 5 letters long")
-            print("Guess> ", end="", flush=True)
-            guess = sys.stdin.readline().strip()
+        print(f"Guess {guessNumber}> ", end="", flush=True)
+        guess = sys.stdin.readline().strip().lower()
 
-        checkMatch = re.match("check (.*)", guess)
-        if guess == 'list':
-            print(" ".join(possibleAnswers))
-        elif guess == 'suggest':
-            wordle_module.suggest(possibleAnswers, answers, allowed)
-        elif checkMatch:
+        if re.match("^list ?.*$", guess):
+            listMatch = re.match(f"^list( ([1-{str(guessNumber)}]))?$", guess)
+            if listMatch:
+                guessToShow = int(listMatch.group(2)) if listMatch.group(2) else guessNumber
+                print(" ".join(possibleAnswersAtTime[guessToShow-1]))
+            else:
+                print("Error: Invalid use of the 'list' command - a valid example would 'list' which shows all the valid words right now or 'list 2' which shows all the valid answers prior to the second guess")
+            continue
+
+        if re.match("^suggest ?.*$", guess):
+            suggestMatch = re.match(f"^suggest( ([1-{str(guessNumber)}]))?$", guess)
+            if suggestMatch:
+                guessToShow = int(suggestMatch.group(2)) if suggestMatch.group(2) else guessNumber
+                wordle_module.suggest(possibleAnswersAtTime[guessToShow-1], answers, allowed)
+            else:
+                print("Error: Invalid use of the 'list' command - a valid example would 'suggest' which shows answers right now or 'suggest 2' shows what would have been a good answer at for the second guess")
+            continue
+
+        checkMatch = re.match("^check (.*)$", guess)
+        if checkMatch:
             wordToCheck = checkMatch.group(1)
-            blurb = "is" if checkMatch.group(1) in answers else "is not"
-            print(f"{wordToCheck} {blurb} an answer in wordle's answer set")
-        else:
+            if wordToCheck in answers:
+                print(f"{wordToCheck} IS an answer in wordle's answer set.")
+            elif wordToCheck in allowed:
+                print(f"{wordToCheck} IS NOT an answer in wordle's answer set, but it is accepted as an input.")
+            else:
+                print(f"{wordToCheck} IS NOT a possible answer and it is not accepted as an input either.")
+            continue
+
+        if re.match("^help$", guess):
+            assistHelp()
+
+        if re.match("^exit$", guess):
+            return
+
+        guessMatch = re.match("^([a-z]{5})(!?)$", guess)
+        if guessMatch:
+            guessedWord = guessMatch.group(1)
+            if guessMatch.group(2) == "" and guessedWord not in allowed and guessedWord not in answers:
+                print(f"{guessedWord} is not an allowed word - try '{guessedWord}!' to override this check")
+                continue
+
             hint = "*"
             while not re.match("^[ =^]{0,5}$", hint):
-                print(" Hint> ", end="", flush=True)
+                print("   Hint> ", end="", flush=True)
                 hint = sys.stdin.readline().strip("\r\n")
             while len(hint) < 5:
                 hint += " "
 
-            possibleAnswers = list(filter(lambda suspect: not wordle_module.isEliminated(suspect, guess, hint), possibleAnswers))
+            possibleAnswers = list(filter(lambda suspect: not wordle_module.isEliminated(suspect, guessedWord, hint), possibleAnswers))
+            possibleAnswersAtTime.append(possibleAnswers)
+            guessNumber += 1
             print(f"{len(possibleAnswers)} possible answers remain.")
+            continue
+
+        print("Error: Unrecognized input - use 'help' to get a list of commands")
 
 def par(gamesPerWord: int):
     for target in answers:

@@ -8,9 +8,11 @@ The more interesting one to play with is accessed by running it with "-a", which
 how many possible answers there are given the guesses/hints you received.  Note that the "hint"
 characters are:
 
-space - No match at all
-carat - A yellow match - meaning the letter is there, but the position is wrong.
-equal - A green match - meaning the letter letter at that position is equal to what's in the answer.
+*space* - No match at all
+
+*carat* - A yellow match - meaning the letter is there, but the position is wrong.
+
+*equal* - A green match - meaning the letter letter at that position is equal to what's in the answer.
 
 The "ratings" that come out of "rate" and "suggest" are the number of possible matches that will
 remain if you make that guess.

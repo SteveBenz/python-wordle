@@ -129,10 +129,12 @@ def assist():
         checkMatch = re.match("^check (.*)$", guess)
         if checkMatch:
             wordToCheck = checkMatch.group(1)
-            if wordToCheck in answers:
-                print(f"{wordToCheck} IS an answer in wordle's answer set.")
+            if wordToCheck in possibleAnswers:
+                print(f"{wordToCheck} IS in the possible answer set and it is compatible with the clues so far.")
+            elif wordToCheck in answers:
+                print(f"{wordToCheck} IS in the possible answer set, but it is NOT compatible with the clues so far.")
             elif wordToCheck in allowed:
-                print(f"{wordToCheck} IS NOT an answer in wordle's answer set, but it is accepted as an input.")
+                print(f"{wordToCheck} IS NOT in the possible answer set, but it is accepted as an input.")
             else:
                 print(f"{wordToCheck} IS NOT a possible answer and it is not accepted as an input either.")
             continue
